@@ -19,8 +19,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Show toolchain
+      - name: Select newest Xcode
         run: |
+          latest=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort | tail -n 1)
+          if [ -n "$latest" ]; then sudo xcode-select -s "$latest"; fi
           xcodebuild -version
           xcodebuild -showsdks || true
 
