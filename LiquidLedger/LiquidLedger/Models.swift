@@ -105,7 +105,7 @@ final class Transfer {
     var toKey: UUID = UUID()
     var amount: Decimal = 0
     var note: String = ""
-    var date: Date = .now
+    var date: Date = Date.now
 
     init(fromKey: UUID, toKey: UUID, amount: Decimal, note: String = "", date: Date = .now) {
         self.fromKey = fromKey
