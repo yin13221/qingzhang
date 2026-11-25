@@ -13,7 +13,10 @@ struct RootView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
+            Color(hex: 0xF5F6FA)
+                .ignoresSafeArea()
             AuroraBackground()
+                .ignoresSafeArea()
 
             Group {
                 switch tab {

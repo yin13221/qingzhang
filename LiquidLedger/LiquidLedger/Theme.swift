@@ -79,8 +79,8 @@ extension View {
 
 struct AuroraBackground: View {
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 24.0)) { context in
-            GeometryReader { _ in
+        GeometryReader { geo in
+            TimelineView(.animation(minimumInterval: 1.0 / 24.0)) { context in
                 let t = context.date.timeIntervalSinceReferenceDate
                 ZStack {
                     Color(hex: 0xF5F6FA)
@@ -89,10 +89,8 @@ struct AuroraBackground: View {
                     blob(0xFFD9C2, 320, x: -160 + sin(t * 0.09) * 34, y: 100 + cos(t * 0.17) * 40, o: 0.6)
                     blob(0xDCCBFF, 300, x: 120 + sin(t * 0.13) * 40, y: -60 + cos(t * 0.10) * 30, o: 0.5)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(width: geo.size.width, height: geo.size.height)
             }
-            .ignoresSafeArea()
-            .clipped()
         }
     }
 

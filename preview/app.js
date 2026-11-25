@@ -99,7 +99,7 @@ function billRow(bill) {
       </div>
       <div class="row-right">
         <span class="row-amount ${bill.type === 'income' ? 'income' : ''}">${bill.type === 'income' ? '+' : '-'}${money(bill.amount)}</span>
-        <span class="row-acc">${escapeHtml(acc.name)}</span>
+        <span class="row-acc">${escapeHtml(acc.name)} · ${timeText(bill.ts)}</span>
       </div>
     </div>`;
 }
@@ -117,7 +117,7 @@ function transferRow(transfer) {
       </div>
       <div class="row-right">
         <span class="row-amount neutral">${money(transfer.amount)}</span>
-        <span class="row-acc">账户转账</span>
+        <span class="row-acc">转账 · ${timeText(transfer.ts)}</span>
       </div>
     </div>`;
 }

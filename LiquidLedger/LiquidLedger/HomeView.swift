@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import Foundation
+import UIKit
 
 struct HomeView: View {
     @Environment(\.modelContext) private var context
@@ -11,12 +12,25 @@ struct HomeView: View {
     @State private var filter = BillFilter()
     @State private var period = HomePeriod()
     @State private var activeSheet: ActiveSheet?
+    @State private var detailTarget: DetailTarget?
 
     private enum ActiveSheet: Int, Identifiable {
         case filter
         case addAccount
         case customPeriod
         var id: Int { rawValue }
+    }
+
+    private enum DetailTarget: Identifiable {
+        case bill(Bill)
+        case transfer(Transfer)
+
+        var id: String {
+            switch self {
+            case .bill(let bill): return "b-" + String(describing: bill.persistentModelID)
+            case .transfer(let transfer): return "t-" + String(describing: transfer.persistentModelID)
+            }
+        }
     }
 
     private struct Entry: Identifiable {
@@ -37,6 +51,7 @@ struct HomeView: View {
 
     private let calendar = Calendar.current
     private let dayFormatter = makeDateFormatter("M月d日 · EEE")
+    private let timeFormatter = makeDateFormatter("HH:mm")
 
     private var sortedAccounts: [Account] {
         accounts.sorted { $0.order < $1.order }
@@ -101,23 +116,40 @@ struct HomeView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                header
-                if filter.isActive {
-                    filterBar
-                }
-                summaryCard
-                AccountsStrip(accounts: sortedAccounts, bills: bills, transfers: transfers) {
-                    activeSheet = .addAccount
-                }
-                billSection
+        VStack(spacing: 0) {
+            header
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+
+            if filter.isActive {
+                filterBar
+                    .padding(.horizontal, 20)
+                    .padding(.top, 6)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
-            .padding(.bottom, 150)
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    summaryCard
+                    AccountsStrip(accounts: sortedAccounts, bills: bills, transfers: transfers) {
+                        activeSheet = .addAccount
+                    }
+                    billSection
+                        .sheet(item: $detailTarget) { target in
+                            switch target {
+                            case .bill(let bill):
+                                BillDetailSheet(bill: bill)
+                            case .transfer(let transfer):
+                                TransferDetailSheet(transfer: transfer)
+                            }
+                        }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+                .padding(.bottom, 150)
+            }
+            .scrollIndicators(.hidden)
+            .scrollBounceBehavior(.basedOnSize)
         }
-        .scrollIndicators(.hidden)
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
             case .filter:
@@ -305,11 +337,16 @@ struct HomeView: View {
             VStack(spacing: 0) {
                 ForEach(group.entries.indices, id: \.self) { index in
                     let entry = group.entries[index]
-                    switch entry.content {
-                    case .bill(let bill):
-                        billRow(bill)
-                    case .transfer(let transfer):
-                        transferRow(transfer)
+                    SwipeDeleteRow(
+                        onDelete: { delete(entry) },
+                        onTap: { detailTarget = target(for: entry) }
+                    ) {
+                        switch entry.content {
+                        case .bill(let bill):
+                            billRow(bill)
+                        case .transfer(let transfer):
+                            transferRow(transfer)
+                        }
                     }
                     if index < group.entries.count - 1 {
                         Rectangle()
@@ -322,6 +359,7 @@ struct HomeView: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 3)
             .glassCard(24)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
     }
 
@@ -349,9 +387,10 @@ struct HomeView: View {
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                     .foregroundStyle(bill.type == .income ? Theme.mint : Theme.ink)
                     .monospacedDigit()
-                Text(accountName)
+                Text(accountName + " · " + timeFormatter.string(from: bill.date))
                     .font(.system(size: 9))
                     .foregroundStyle(Theme.secondary)
+                    .lineLimit(1)
             }
         }
         .padding(.vertical, 8)
@@ -388,9 +427,10 @@ struct HomeView: View {
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.secondary)
                     .monospacedDigit()
-                Text("账户转账")
+                Text("转账 · " + timeFormatter.string(from: transfer.date))
                     .font(.system(size: 9))
                     .foregroundStyle(Theme.secondary)
+                    .lineLimit(1)
             }
         }
         .padding(.vertical, 8)
@@ -423,6 +463,28 @@ struct HomeView: View {
             return "未指定账户"
         }
         return account.name
+    }
+
+    private func target(for entry: Entry) -> DetailTarget {
+        switch entry.content {
+        case .bill(let bill):
+            return .bill(bill)
+        case .transfer(let transfer):
+            return .transfer(transfer)
+        }
+    }
+
+    private func delete(_ entry: Entry) {
+        withAnimation(.snappy) {
+            switch entry.content {
+            case .bill(let bill):
+                context.delete(bill)
+            case .transfer(let transfer):
+                context.delete(transfer)
+            }
+            try? context.save()
+        }
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 
     private func dayLabel(_ day: Date) -> String {

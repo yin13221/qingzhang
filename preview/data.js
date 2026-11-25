@@ -161,6 +161,11 @@ function money(value) {
   return '¥' + Number(value).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function timeText(ts) {
+  const d = new Date(ts);
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
 function categoryOf(type, id) {
   const list = CATEGORIES[type];
   return list.find(c => c.id === id) || list[list.length - 1];

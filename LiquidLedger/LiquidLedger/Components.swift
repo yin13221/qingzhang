@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import Foundation
 
 struct NumberStepperField: View {
     @Binding var value: Double
@@ -147,6 +148,89 @@ struct ChipGrid<Content: View>: View {
             spacing: 8
         ) {
             content
+        }
+    }
+}
+
+struct SwipeDeleteRow<Content: View>: View {
+    private let onDelete: () -> Void
+    private let onTap: (() -> Void)?
+    private let content: Content
+
+    @State private var offset: CGFloat = 0
+    @State private var dragBase: CGFloat = 0
+    @State private var isDragging = false
+
+    init(onDelete: @escaping () -> Void, onTap: (() -> Void)? = nil, @ViewBuilder content: () -> Content) {
+        self.onDelete = onDelete
+        self.onTap = onTap
+        self.content = content()
+    }
+
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            Button(action: performDelete) {
+                VStack(spacing: 3) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 15, weight: .semibold))
+                    Text("删除")
+                        .font(.system(size: 10.5, weight: .semibold))
+                }
+                .foregroundStyle(.white)
+                .frame(width: 78)
+                .frame(maxHeight: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color(hex: 0xFF5A5F))
+                )
+            }
+            .buttonStyle(.plain)
+            .padding(.vertical, 3)
+            .opacity(offset < -6 ? 1 : 0)
+
+            content
+                .background(Color(hex: 0xF6F7FB).opacity(0.97))
+                .offset(x: offset)
+                .simultaneousGesture(dragGesture)
+                .onTapGesture {
+                    if offset < 0 {
+                        close()
+                    } else {
+                        onTap?()
+                    }
+                }
+        }
+        .clipped()
+    }
+
+    private var dragGesture: some Gesture {
+        DragGesture(minimumDistance: 15)
+            .onChanged { value in
+                guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                if !isDragging {
+                    isDragging = true
+                    dragBase = offset
+                }
+                offset = min(0, max(-86, dragBase + value.translation.width))
+            }
+            .onEnded { value in
+                isDragging = false
+                let shouldOpen = offset < -44 || value.translation.width < -60
+                withAnimation(.snappy(duration: 0.22)) {
+                    offset = shouldOpen ? -78 : 0
+                }
+            }
+    }
+
+    private func close() {
+        withAnimation(.snappy(duration: 0.2)) { offset = 0 }
+    }
+
+    private func performDelete() {
+        UISelectionFeedbackGenerator().selectionChanged()
+        close()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+            onDelete()
         }
     }
 }
