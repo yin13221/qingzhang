@@ -81,6 +81,12 @@ struct CustomPeriodSheet: View {
     @State private var draftStart = Date.now
     @State private var draftEnd = Date.now
 
+    init(start: Binding<Date>, end: Binding<Date>, onApply: @escaping () -> Void) {
+        _start = start
+        _end = end
+        self.onApply = onApply
+    }
+
     var body: some View {
         ZStack {
             SheetBackground()

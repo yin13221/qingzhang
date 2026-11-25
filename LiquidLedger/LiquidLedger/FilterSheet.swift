@@ -81,6 +81,12 @@ struct FilterSheetView: View {
 
     @State private var draft = BillFilter()
 
+    init(filter: Binding<BillFilter>, accounts: [Account], tags: [String]) {
+        _filter = filter
+        self.accounts = accounts
+        self.tags = tags
+    }
+
     var body: some View {
         ZStack {
             SheetBackground()

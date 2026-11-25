@@ -11,6 +11,9 @@ on:
         required: true
         default: "com.example.liquidledger.app"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: macos-latest
@@ -56,6 +59,20 @@ jobs:
           path: ${{ runner.temp }}/build.log
           if-no-files-found: warn
 
+      - name: Publish log tail to summary
+        if: always()
+        run: |
+          {
+            echo "### Error lines"
+            echo '```'
+            grep -n "error:" "$RUNNER_TEMP/build.log" 2>/dev/null | tail -n 80 || echo "no 'error:' lines found"
+            echo '```'
+            echo "### Build log (last 300 lines)"
+            echo '```'
+            tail -n 300 "$RUNNER_TEMP/build.log" 2>/dev/null || echo "build.log not found"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Package IPA
         run: |
           cd "$RUNNER_TEMP/build/Release-iphoneos"
@@ -69,3 +86,15 @@ jobs:
           name: LiquidLedger-unsigned-ipa
           path: ${{ runner.temp }}/build/Release-iphoneos/LiquidLedger-unsigned.ipa
           if-no-files-found: error
+
+      - name: Publish IPA to Releases
+        if: success()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "build-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}" \
+            "$RUNNER_TEMP/build/Release-iphoneos/LiquidLedger-unsigned.ipa" \
+            --title "Build ${GITHUB_RUN_NUMBER}" \
+            --notes "Unsigned IPA. Install with Sideloadly using your Apple ID." \
+            --prerelease

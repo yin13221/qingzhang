@@ -48,6 +48,20 @@ jobs:
           path: ${{ runner.temp }}/build.log
           if-no-files-found: warn
 
+      - name: Publish log tail to summary
+        if: always()
+        run: |
+          {
+            echo "### Error lines"
+            echo '```'
+            grep -n "error:" "$RUNNER_TEMP/build.log" 2>/dev/null | tail -n 80 || echo "no 'error:' lines found"
+            echo '```'
+            echo "### Build log (last 300 lines)"
+            echo '```'
+            tail -n 300 "$RUNNER_TEMP/build.log" 2>/dev/null || echo "build.log not found"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Package .app
         run: |
           cd "$RUNNER_TEMP/build/Debug-iphonesimulator"
