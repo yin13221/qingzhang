@@ -1,0 +1,47 @@
+name: Build iOS simulator app
+
+# Goal: produce a simulator .app on a macOS runner so it can be streamed
+# in a Windows browser through a cloud simulator such as Appetize.io.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks || true
+
+      - name: Build for simulator (universal slice)
+        run: |
+          xcodebuild \
+            -project LiquidLedger/LiquidLedger.xcodeproj \
+            -target LiquidLedger \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            SYMROOT="$RUNNER_TEMP/build" \
+            ARCHS="arm64 x86_64" \
+            ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Package .app
+        run: |
+          cd "$RUNNER_TEMP/build/Debug-iphonesimulator"
+          ditto -c -k --sequesterRsrc --keepParent LiquidLedger.app LiquidLedger.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiquidLedger-simulator
+          path: ${{ runner.temp }}/build/Debug-iphonesimulator/LiquidLedger.zip
+          if-no-files-found: error

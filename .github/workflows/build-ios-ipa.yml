@@ -1,0 +1,54 @@
+name: Build unsigned iPhone IPA
+
+# Produces an unsigned device .ipa that you can re-sign locally on Windows
+# with Sideloadly or AltStore using a free Apple ID (certificate lasts 7 days).
+
+on:
+  workflow_dispatch:
+    inputs:
+      bundle_id:
+        description: "Bundle identifier (must be unique for your Apple ID)"
+        required: true
+        default: "com.example.liquidledger.app"
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks || true
+
+      - name: Build unsigned device app
+        run: |
+          xcodebuild \
+            -project LiquidLedger/LiquidLedger.xcodeproj \
+            -scheme LiquidLedger \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            SYMROOT="$RUNNER_TEMP/build" \
+            PRODUCT_BUNDLE_IDENTIFIER="${{ inputs.bundle_id }}" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Package IPA
+        run: |
+          cd "$RUNNER_TEMP/build/Release-iphoneos"
+          mkdir -p Payload
+          cp -R LiquidLedger.app Payload/
+          zip -qry LiquidLedger-unsigned.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiquidLedger-unsigned-ipa
+          path: ${{ runner.temp }}/build/Release-iphoneos/LiquidLedger-unsigned.ipa
+          if-no-files-found: error

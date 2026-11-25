@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>轻账 · Liquid Glass 预览</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="stage">
+  <div class="phone">
+    <div class="screen">
+      <div class="aurora" aria-hidden="true">
+        <span class="blob b1"></span>
+        <span class="blob b2"></span>
+        <span class="blob b3"></span>
+        <span class="blob b4"></span>
+        <span class="grain"></span>
+      </div>
+
+      <header class="status" aria-hidden="true">
+        <span class="time">9:41</span>
+        <span class="status-icons">
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0 1 14 0"/><path d="M4.2 7a6.2 6.2 0 0 1 8.6 0"/><circle cx="8.5" cy="10" r="1.2" fill="currentColor" stroke="none"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" fill="none" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="currentColor"/><path d="M23 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity="0.5"/></svg>
+        </span>
+      </header>
+
+      <main id="view-home" class="page active" aria-label="首页">
+        <div class="page-inner">
+          <div class="title-row">
+            <h1>账本</h1>
+            <div class="head-actions">
+              <button class="period-btn" id="open-period" aria-label="选择时间范围">
+                <span class="period-btn-icon" id="period-icon"></span>
+                <span id="period-label">最近一个月</span>
+                <span class="period-chevron" id="period-chevron"></span>
+              </button>
+              <button class="icon-btn" id="open-filter" aria-label="筛选与搜索">
+                <span class="icon-btn-icon" id="filter-icon"></span>
+                <span class="badge" id="filter-badge" hidden></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="filter-active" id="filter-active" hidden>
+            <span id="filter-active-text"></span>
+            <button id="clear-filter">清除</button>
+          </div>
+
+          <section class="glass summary">
+            <div class="summary-label" id="summary-caption">本月支出</div>
+            <div class="summary-amount" id="home-expense">¥0.00</div>
+            <div class="summary-stats">
+              <div class="stat">
+                <span class="stat-label">收入</span>
+                <span class="stat-value mint" id="home-income">¥0.00</span>
+              </div>
+              <span class="stat-divider"></span>
+              <div class="stat">
+                <span class="stat-label">结余</span>
+                <span class="stat-value" id="home-balance">¥0.00</span>
+              </div>
+            </div>
+          </section>
+
+          <div class="section-head">
+            <h2>账户</h2>
+            <span class="section-meta" id="net-assets"></span>
+          </div>
+          <div class="account-strip" id="account-strip"></div>
+
+          <div class="section-head">
+            <h2>最近账单</h2>
+            <span class="section-meta" id="home-count"></span>
+          </div>
+          <div class="bill-list" id="home-list"></div>
+        </div>
+      </main>
+
+      <main id="view-stats" class="page" aria-label="统计">
+        <div class="page-inner">
+          <h1>统计</h1>
+          <div class="month-switch glass-pill">
+            <button class="month-btn" id="prev-month" aria-label="上个月">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <span id="stats-month" class="month-label"></span>
+            <button class="month-btn" id="next-month" aria-label="下个月">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+          <div class="stats-summary" id="stats-summary"></div>
+
+          <section class="glass donut-card">
+            <div class="card-head">
+              <h3>分类构成</h3>
+              <div class="seg-mini" id="stats-metric">
+                <button class="mini active" data-metric="expense">支出</button>
+                <button class="mini" data-metric="income">收入</button>
+              </div>
+            </div>
+            <div id="donut-wrap"></div>
+            <div class="legend" id="legend"></div>
+          </section>
+
+          <section class="glass trend-card">
+            <div class="card-head">
+              <h3>近 6 个月收支</h3>
+              <div class="chart-legend">
+                <span class="dot accent"></span><span>支出</span>
+                <span class="dot mint-dot"></span><span>收入</span>
+              </div>
+            </div>
+            <div class="trend" id="trend"></div>
+          </section>
+        </div>
+      </main>
+
+      <main id="view-tools" class="page" aria-label="工具">
+        <div class="page-inner" id="tools-list-view">
+          <div class="eyebrow">常用小工具</div>
+          <h1>工具</h1>
+
+          <section class="glass tool-list-card">
+            <button class="tool-row" id="open-calculator">
+              <span class="tool-icon" id="tool-calc-icon"></span>
+              <span class="tool-main">
+                <span class="tool-name">工资计算器</span>
+                <span class="tool-sub">绩效 + 固定工资 · 税后实发</span>
+              </span>
+              <span class="tool-chevron" id="tool-chevron-icon"></span>
+            </button>
+            <button class="tool-row" id="open-recovery">
+              <span class="tool-icon" id="tool-recovery-icon" style="background: rgba(242, 181, 68, 0.16); color: #F2B544"></span>
+              <span class="tool-main">
+                <span class="tool-name">回本涨幅计算器</span>
+                <span class="tool-sub">亏损后需要涨多少才回本</span>
+              </span>
+              <span class="tool-chevron" id="tool-recovery-chevron"></span>
+            </button>
+          </section>
+        </div>
+
+        <div class="page-inner" id="calculator-view" hidden>
+          <div class="calc-head">
+            <button class="icon-btn small" id="calc-back" aria-label="返回工具">
+              <span id="calc-back-icon"></span>
+            </button>
+            <h1>工资计算器</h1>
+            <button class="save-tpl-btn" id="calc-save-template">
+              <span id="save-tpl-icon"></span>存为模板
+            </button>
+          </div>
+
+          <div class="tpl-strip-wrap">
+            <div class="picker-label">模板</div>
+            <div class="chips scroll" id="tpl-strip"></div>
+          </div>
+
+          <section class="glass result-card">
+            <div class="result-label">实发工资</div>
+            <div class="result-amount" id="salary-net">¥2,250.00</div>
+            <div class="result-sub">应发 <b id="salary-gross">¥2,500.00</b> · 扣除 <b id="salary-tax">¥250.00</b></div>
+          </section>
+
+          <section class="glass params-card">
+            <div class="param-row">
+              <label for="p-base">绩效基数</label>
+              <div class="param-input"><span>¥</span><input type="number" id="p-base" min="0" step="100" inputmode="decimal" /></div>
+            </div>
+            <div class="param-row">
+              <label for="p-factor">绩效系数</label>
+              <div class="num-stepper">
+                <button type="button" data-target="factor" data-step="-0.1" aria-label="减少绩效系数">−</button>
+                <input type="number" id="p-factor" class="num-input" min="0" max="10" step="0.001" inputmode="decimal" aria-label="绩效系数" />
+                <button type="button" data-target="factor" data-step="0.1" aria-label="增加绩效系数">+</button>
+              </div>
+            </div>
+            <div class="param-row">
+              <label for="p-fixed">固定金额</label>
+              <div class="param-input"><span>¥</span><input type="number" id="p-fixed" min="0" step="100" inputmode="decimal" /></div>
+            </div>
+            <div class="param-divider"></div>
+            <div class="param-row">
+              <label for="p-ratio">税后比例</label>
+              <div class="ratio-wrap">
+                <div class="num-stepper">
+                  <button type="button" data-target="ratio" data-step="-0.01" aria-label="降低税后比例">−</button>
+                  <input type="number" id="p-ratio" class="num-input" min="0" max="1" step="0.001" inputmode="decimal" aria-label="税后比例" />
+                  <button type="button" data-target="ratio" data-step="0.01" aria-label="提高税后比例">+</button>
+                </div>
+                <em id="p-after-label">90%</em>
+              </div>
+            </div>
+          </section>
+
+          <section class="glass breakdown-card">
+            <div class="bd-row"><span>绩效工资</span><b id="bd-perf">¥1,500.00</b></div>
+            <div class="bd-row"><span>固定工资</span><b id="bd-fixed">¥1,000.00</b></div>
+            <div class="bd-row"><span>应发工资</span><b id="bd-gross">¥2,500.00</b></div>
+            <div class="bd-row"><span>扣除比例</span><b id="bd-taxrate">10%</b></div>
+            <div class="bd-row total"><span>实发工资</span><b id="bd-net">¥2,250.00</b></div>
+          </section>
+        </div>
+
+        <div class="page-inner" id="recovery-view" hidden>
+          <div class="calc-head">
+            <button class="icon-btn small" id="recovery-back" aria-label="返回工具">
+              <span id="recovery-back-icon"></span>
+            </button>
+            <h1>回本涨幅计算器</h1>
+          </div>
+
+          <section class="glass result-card">
+            <div class="result-label">回本所需涨幅</div>
+            <div class="result-amount" id="recovery-gain">25%</div>
+            <div class="result-sub">亏损 <b id="recovery-loss-label">20%</b> 后，需上涨 <b id="recovery-gain-inline">25%</b> 才回本</div>
+          </section>
+
+          <section class="glass params-card">
+            <div class="param-row">
+              <label for="loss-input">亏损百分比</label>
+              <div class="ratio-wrap">
+                <div class="num-stepper">
+                  <button type="button" data-target="loss" data-step="-1" aria-label="减少亏损百分比">−</button>
+                  <input type="number" id="loss-input" class="num-input" min="0" max="99.999" step="0.001" inputmode="decimal" aria-label="亏损百分比" />
+                  <button type="button" data-target="loss" data-step="1" aria-label="增加亏损百分比">+</button>
+                </div>
+                <em>%</em>
+              </div>
+            </div>
+          </section>
+
+          <section class="glass breakdown-card">
+            <div class="bd-head">常见亏损参考</div>
+            <div id="recovery-table"></div>
+          </section>
+        </div>
+      </main>
+
+      <nav class="tabbar glass" aria-label="主导航">
+        <span class="tab-glider" id="tab-glider" aria-hidden="true"></span>
+        <button class="tab active" data-tab="home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+          <span>首页</span>
+        </button>
+        <button class="tab" data-tab="stats">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+          <span>统计</span>
+        </button>
+        <button class="tab" data-tab="tools">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="3"/><path d="M8 6h8"/><path d="M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h.01M16 19h.01"/></svg>
+          <span>工具</span>
+        </button>
+      </nav>
+
+      <button class="fab" id="fab" aria-label="记一笔">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+
+      <div class="scrim" id="scrim"></div>
+
+      <section class="sheet" id="sheet" aria-label="记一笔">
+        <div class="grabber"></div>
+        <div class="sheet-body">
+          <div class="segmented" role="tablist">
+            <button class="seg active" data-type="expense" role="tab">支出</button>
+            <button class="seg" data-type="income" role="tab">收入</button>
+            <button class="seg" data-type="transfer" role="tab">转账</button>
+          </div>
+
+          <div class="sheet-amount">
+            <span class="currency">¥</span>
+            <span class="amount-text" id="sheet-amount">0</span>
+          </div>
+
+          <div class="sheet-scroll">
+            <div class="cat-grid" id="cat-grid"></div>
+
+            <div class="picker-block" id="account-pane">
+              <div class="picker-label">账户</div>
+              <div class="chips scroll" id="account-chips"></div>
+            </div>
+
+            <div class="picker-block" id="transfer-pane" hidden>
+              <div class="picker-label">转出</div>
+              <div class="chips scroll" id="from-chips"></div>
+              <div class="picker-label" style="margin-top:10px">转入</div>
+              <div class="chips scroll" id="to-chips"></div>
+            </div>
+
+            <div class="note-row">
+              <label class="note-field">
+                <span class="field-icon" id="note-icon"></span>
+                <input id="note-input" type="text" placeholder="添加备注…" maxlength="24" />
+              </label>
+              <input type="date" class="date-chip" id="date-input" aria-label="选择日期" />
+            </div>
+
+            <label class="note-field tag-field" id="tag-row">
+              <span class="field-icon" id="tag-icon"></span>
+              <input id="tag-input" type="text" placeholder="标签，空格分隔，如 工作餐" maxlength="40" />
+            </label>
+          </div>
+
+          <div class="keypad">
+            <div class="keys" id="keys"></div>
+            <button class="save-btn" id="save-btn" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12.5 5 5L20 6.5"/></svg>
+              <span>保存</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="sheet filter-sheet" id="filter-sheet" aria-label="筛选与搜索">
+        <div class="grabber"></div>
+        <div class="filter-head">
+          <b>筛选与搜索</b>
+          <button class="icon-btn small" id="filter-close" aria-label="关闭">
+            <span id="filter-close-icon"></span>
+          </button>
+        </div>
+        <div class="filter-body">
+          <label class="note-field search-field">
+            <span class="field-icon" id="search-icon"></span>
+            <input id="f-keyword" type="text" placeholder="搜索备注、标签、分类或账户…" maxlength="40" />
+          </label>
+
+          <div class="filter-group">
+            <h4>分类</h4>
+            <div class="chip-label">支出</div>
+            <div class="chips" id="f-cats-expense"></div>
+            <div class="chip-label">收入</div>
+            <div class="chips" id="f-cats-income"></div>
+          </div>
+
+          <div class="filter-group">
+            <h4>账户</h4>
+            <div class="chips" id="f-accounts"></div>
+          </div>
+
+          <div class="filter-group">
+            <h4>金额区间</h4>
+            <div class="amount-range">
+              <input type="number" inputmode="decimal" id="f-min" placeholder="最低" min="0" />
+              <span>—</span>
+              <input type="number" inputmode="decimal" id="f-max" placeholder="最高" min="0" />
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <h4>标签</h4>
+            <div class="chips" id="f-tags"></div>
+          </div>
+        </div>
+        <div class="filter-actions">
+          <button class="ghost-btn" id="f-reset">重置</button>
+          <button class="primary-btn" id="f-apply">查看结果</button>
+        </div>
+      </section>
+
+      <section class="sheet period-sheet" id="period-sheet" aria-label="选择时间范围">
+        <div class="grabber"></div>
+        <div class="filter-head">
+          <b>时间范围</b>
+          <button class="icon-btn small" id="period-close" aria-label="关闭">
+            <span id="period-close-icon"></span>
+          </button>
+        </div>
+        <div class="filter-body">
+          <div class="period-list" id="period-options"></div>
+          <div class="custom-dates" id="period-custom" hidden>
+            <input type="date" id="p-start" aria-label="开始日期" />
+            <span>至</span>
+            <input type="date" id="p-end" aria-label="结束日期" />
+          </div>
+        </div>
+        <div class="filter-actions">
+          <button class="ghost-btn" id="period-reset">重置</button>
+          <button class="primary-btn" id="period-apply">应用</button>
+        </div>
+      </section>
+
+      <section class="sheet template-sheet" id="template-sheet" aria-label="保存模板">
+        <div class="grabber"></div>
+        <div class="filter-head">
+          <b>保存模板</b>
+          <button class="icon-btn small" id="template-close" aria-label="关闭">
+            <span id="template-close-icon"></span>
+          </button>
+        </div>
+        <div class="filter-body">
+          <label class="note-field">
+            <span class="field-icon" id="template-name-icon"></span>
+            <input id="template-name" type="text" placeholder="模板名称，如：正常月 / 试用期" maxlength="14" />
+          </label>
+          <div class="tpl-preview" id="template-preview"></div>
+        </div>
+        <div class="filter-actions">
+          <button class="ghost-btn" id="template-cancel">取消</button>
+          <button class="primary-btn" id="template-save">保存</button>
+        </div>
+      </section>
+
+      <section class="sheet account-sheet" id="account-sheet" aria-label="添加账户">
+        <div class="grabber"></div>
+        <div class="filter-head">
+          <b>添加账户</b>
+          <button class="icon-btn small" id="account-close" aria-label="关闭">
+            <span id="account-close-icon"></span>
+          </button>
+        </div>
+        <div class="account-body">
+          <label class="note-field">
+            <span class="field-icon" id="account-name-icon"></span>
+            <input id="account-name" type="text" placeholder="账户名称，如：招商银行" maxlength="12" />
+          </label>
+          <div class="picker-label">类型</div>
+          <div class="chips" id="account-kind-chips"></div>
+          <div class="picker-label">初始余额</div>
+          <div class="amount-range single">
+            <input type="number" inputmode="decimal" id="account-initial" placeholder="0.00" />
+          </div>
+          <button class="primary-btn wide" id="account-save">保存账户</button>
+        </div>
+      </section>
+
+      <div class="toast" id="toast">已记一笔</div>
+      <div class="island" aria-hidden="true"></div>
+      <div class="home-indicator" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div class="stage-note">
+    轻账 · Liquid Glass 概念预览
+    <button id="reset-demo">重置演示数据</button>
+  </div>
+</div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
