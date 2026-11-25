@@ -111,6 +111,7 @@ struct FilterSheetView: View {
                     .padding(.bottom, 10)
                 }
                 .scrollIndicators(.hidden)
+                .scrollDismissesKeyboard(.interactively)
 
                 actions
                     .padding(.horizontal, 22)
@@ -122,6 +123,7 @@ struct FilterSheetView: View {
         .presentationCornerRadius(40)
         .presentationBackground(.clear)
         .onAppear { draft = filter }
+        .keyboardDoneButton()
     }
 
     private var header: some View {

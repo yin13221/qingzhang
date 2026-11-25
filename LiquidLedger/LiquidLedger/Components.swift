@@ -150,3 +150,41 @@ struct ChipGrid<Content: View>: View {
         }
     }
 }
+
+extension View {
+    func keyboardDoneButton() -> some View {
+        toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("完成") {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder),
+                        to: nil,
+                        from: nil,
+                        for: nil
+                    )
+                }
+            }
+        }
+    }
+
+    func edgeSwipeBack(_ action: @escaping () -> Void) -> some View {
+        modifier(EdgeSwipeBackModifier(action: action))
+    }
+}
+
+private struct EdgeSwipeBackModifier: ViewModifier {
+    let action: () -> Void
+
+    func body(content: Content) -> some View {
+        content.simultaneousGesture(
+            DragGesture(minimumDistance: 20, coordinateSpace: .global)
+                .onEnded { value in
+                    guard value.startLocation.x < 40,
+                          value.translation.width > 80,
+                          abs(value.translation.height) < 120 else { return }
+                    action()
+                }
+        )
+    }
+}

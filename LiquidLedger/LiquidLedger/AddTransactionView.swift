@@ -90,6 +90,7 @@ struct AddTransactionView: View {
                     .padding(.bottom, 6)
                 }
                 .scrollIndicators(.hidden)
+                .scrollDismissesKeyboard(.interactively)
 
                 keypad
                     .padding(.horizontal, 22)
@@ -101,6 +102,7 @@ struct AddTransactionView: View {
         .presentationCornerRadius(40)
         .presentationBackground(.clear)
         .onAppear(perform: prepareAccounts)
+        .keyboardDoneButton()
     }
 
     private func prepareAccounts() {

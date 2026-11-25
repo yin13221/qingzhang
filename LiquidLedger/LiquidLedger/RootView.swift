@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import Combine
 
 struct RootView: View {
     enum Tab { case home, stats, tools }
@@ -7,6 +8,7 @@ struct RootView: View {
     @Environment(\.modelContext) private var context
     @State private var tab: Tab = .home
     @State private var showingAdd = false
+    @State private var keyboardVisible = false
     @Namespace private var tabNamespace
 
     var body: some View {
@@ -32,10 +34,19 @@ struct RootView: View {
                 )
             )
 
-            bottomBar
+            if !keyboardVisible {
+                bottomBar
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
         .sheet(isPresented: $showingAdd) {
             AddTransactionView()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            withAnimation(.easeOut(duration: 0.2)) { keyboardVisible = true }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            withAnimation(.easeOut(duration: 0.2)) { keyboardVisible = false }
         }
         .task {
             DefaultData.seedAccountsIfNeeded(context)
@@ -49,26 +60,28 @@ struct RootView: View {
 
             Spacer(minLength: 12)
 
-            Button {
-                showingAdd = true
-            } label: {
-                Image(systemName: "plus")
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 62, height: 62)
-                    .background(
-                        Circle().fill(
-                            LinearGradient(
-                                colors: [Theme.accent, Theme.violet],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+            if tab != .tools {
+                Button {
+                    showingAdd = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 62, height: 62)
+                        .background(
+                            Circle().fill(
+                                LinearGradient(
+                                    colors: [Theme.accent, Theme.violet],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
                             )
                         )
-                    )
-                    .shadow(color: Theme.accent.opacity(0.45), radius: 20, y: 10)
+                        .shadow(color: Theme.accent.opacity(0.45), radius: 20, y: 10)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("记一笔")
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("记一笔")
         }
         .padding(.bottom, 10)
         .padding(.horizontal, 16)

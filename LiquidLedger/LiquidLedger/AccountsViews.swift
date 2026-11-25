@@ -181,6 +181,7 @@ struct AddAccountSheet: View {
                     .padding(.top, 2)
                 }
                 .scrollIndicators(.hidden)
+                .scrollDismissesKeyboard(.interactively)
 
                 Button(action: save) {
                     Text("保存账户")
@@ -208,6 +209,7 @@ struct AddAccountSheet: View {
         .presentationDragIndicator(.hidden)
         .presentationCornerRadius(40)
         .presentationBackground(.clear)
+        .keyboardDoneButton()
     }
 
     private func save() {

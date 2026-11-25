@@ -37,6 +37,9 @@ struct ToolsView: View {
                     }
                 }
                 .transition(.move(edge: .trailing).combined(with: .opacity))
+                .edgeSwipeBack {
+                    withAnimation(.snappy(duration: 0.3)) { activeTool = nil }
+                }
             } else {
                 toolsList
                     .transition(.opacity)
@@ -170,6 +173,7 @@ struct SalaryToolView: View {
             .padding(.bottom, 150)
         }
         .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.interactively)
         .onAppear {
             if afterTaxRatio > 1 { afterTaxRatio /= 100 }
         }
@@ -186,6 +190,7 @@ struct SalaryToolView: View {
         } message: {
             Text("将当前参数保存为模板，之后一点即可套用")
         }
+        .keyboardDoneButton()
     }
 
     private var header: some View {

@@ -843,6 +843,7 @@ document.querySelectorAll('.tab').forEach(btn => {
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b === btn));
     document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'view-' + target));
     positionGlider(true);
+    document.getElementById('fab').hidden = target === 'tools';
     if (target === 'stats') renderStats();
     if (target === 'home') renderHome();
     if (target === 'tools') {

@@ -29,9 +29,11 @@ struct RecoveryToolView: View {
             .padding(.bottom, 150)
         }
         .scrollIndicators(.hidden)
+        .scrollDismissesKeyboard(.interactively)
         .onChange(of: lossPercent) { _, value in
             lossPercent = min(99.999, max(0, (value * 1000).rounded() / 1000))
         }
+        .keyboardDoneButton()
     }
 
     private var header: some View {
