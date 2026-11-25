@@ -80,15 +80,19 @@ extension View {
 struct AuroraBackground: View {
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 24.0)) { context in
-            let t = context.date.timeIntervalSinceReferenceDate
-            ZStack {
-                Color(hex: 0xF5F6FA)
-                blob(0xC9D5FF, 440, x: -70 + sin(t * 0.16) * 46, y: -300 + cos(t * 0.12) * 36, o: 0.85)
-                blob(0xC4F0E1, 400, x: 150 + cos(t * 0.11) * 52, y: 280 + sin(t * 0.15) * 44, o: 0.75)
-                blob(0xFFD9C2, 320, x: -160 + sin(t * 0.09) * 34, y: 100 + cos(t * 0.17) * 40, o: 0.6)
-                blob(0xDCCBFF, 300, x: 120 + sin(t * 0.13) * 40, y: -60 + cos(t * 0.10) * 30, o: 0.5)
+            GeometryReader { _ in
+                let t = context.date.timeIntervalSinceReferenceDate
+                ZStack {
+                    Color(hex: 0xF5F6FA)
+                    blob(0xC9D5FF, 440, x: -70 + sin(t * 0.16) * 46, y: -300 + cos(t * 0.12) * 36, o: 0.85)
+                    blob(0xC4F0E1, 400, x: 150 + cos(t * 0.11) * 52, y: 280 + sin(t * 0.15) * 44, o: 0.75)
+                    blob(0xFFD9C2, 320, x: -160 + sin(t * 0.09) * 34, y: 100 + cos(t * 0.17) * 40, o: 0.6)
+                    blob(0xDCCBFF, 300, x: 120 + sin(t * 0.13) * 40, y: -60 + cos(t * 0.10) * 30, o: 0.5)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .ignoresSafeArea()
+            .clipped()
         }
     }
 
