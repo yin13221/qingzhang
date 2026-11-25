@@ -9,7 +9,7 @@ on:
       bundle_id:
         description: "Bundle identifier (must be unique for your Apple ID)"
         required: true
-        default: "com.example.liquidledger.app"
+        default: "com.yin13221.qingzhang"
 
 permissions:
   contents: write
