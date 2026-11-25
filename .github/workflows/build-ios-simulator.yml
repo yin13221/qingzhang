@@ -23,16 +23,30 @@ jobs:
 
       - name: Build for simulator (universal slice)
         run: |
-          xcodebuild \
-            -project LiquidLedger/LiquidLedger.xcodeproj \
-            -target LiquidLedger \
-            -sdk iphonesimulator \
-            -configuration Debug \
-            SYMROOT="$RUNNER_TEMP/build" \
-            ARCHS="arm64 x86_64" \
-            ONLY_ACTIVE_ARCH=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            build
+          set -o pipefail
+          {
+            echo "== Toolchain =="
+            xcodebuild -version
+            echo "== Build =="
+            xcodebuild \
+              -project LiquidLedger/LiquidLedger.xcodeproj \
+              -target LiquidLedger \
+              -sdk iphonesimulator \
+              -configuration Debug \
+              SYMROOT="$RUNNER_TEMP/build" \
+              ARCHS="arm64 x86_64" \
+              ONLY_ACTIVE_ARCH=NO \
+              CODE_SIGNING_ALLOWED=NO \
+              build
+          } 2>&1 | tee "$RUNNER_TEMP/build.log"
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: ${{ runner.temp }}/build.log
+          if-no-files-found: warn
 
       - name: Package .app
         run: |

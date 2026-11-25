@@ -28,18 +28,33 @@ jobs:
 
       - name: Build unsigned device app
         run: |
-          xcodebuild \
-            -project LiquidLedger/LiquidLedger.xcodeproj \
-            -scheme LiquidLedger \
-            -configuration Release \
-            -sdk iphoneos \
-            -destination "generic/platform=iOS" \
-            SYMROOT="$RUNNER_TEMP/build" \
-            PRODUCT_BUNDLE_IDENTIFIER="${{ inputs.bundle_id }}" \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            build
+          set -o pipefail
+          {
+            echo "== Toolchain =="
+            xcodebuild -version
+            swift --version || true
+            echo "== Build =="
+            xcodebuild \
+              -project LiquidLedger/LiquidLedger.xcodeproj \
+              -scheme LiquidLedger \
+              -configuration Release \
+              -sdk iphoneos \
+              -destination "generic/platform=iOS" \
+              SYMROOT="$RUNNER_TEMP/build" \
+              PRODUCT_BUNDLE_IDENTIFIER="${{ inputs.bundle_id }}" \
+              CODE_SIGNING_ALLOWED=NO \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGN_IDENTITY="" \
+              build
+          } 2>&1 | tee "$RUNNER_TEMP/build.log"
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: ${{ runner.temp }}/build.log
+          if-no-files-found: warn
 
       - name: Package IPA
         run: |

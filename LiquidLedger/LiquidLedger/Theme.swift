@@ -38,26 +38,42 @@ extension View {
     @ViewBuilder
     func glassCard(_ radius: CGFloat = 28) -> some View {
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
+        #if swift(>=6.2)
         if #available(iOS 26.0, *) {
             self.glassEffect(.regular, in: shape)
         } else {
-            self
-                .background(.ultraThinMaterial, in: shape)
-                .overlay(shape.strokeBorder(.white.opacity(0.65), lineWidth: 1))
-                .shadow(color: Theme.ink.opacity(0.07), radius: 24, y: 12)
+            cardFallback(shape)
         }
+        #else
+        cardFallback(shape)
+        #endif
     }
 
     @ViewBuilder
     func glassCapsule() -> some View {
+        #if swift(>=6.2)
         if #available(iOS 26.0, *) {
             self.glassEffect(.regular.interactive(), in: Capsule())
         } else {
-            self
-                .background(.ultraThinMaterial, in: Capsule())
-                .overlay(Capsule().strokeBorder(.white.opacity(0.75), lineWidth: 1))
-                .shadow(color: Theme.ink.opacity(0.06), radius: 12, y: 6)
+            capsuleFallback()
         }
+        #else
+        capsuleFallback()
+        #endif
+    }
+
+    private func cardFallback<S: InsettableShape>(_ shape: S) -> some View {
+        self
+            .background(.ultraThinMaterial, in: shape)
+            .overlay(shape.strokeBorder(.white.opacity(0.65), lineWidth: 1))
+            .shadow(color: Theme.ink.opacity(0.07), radius: 24, y: 12)
+    }
+
+    private func capsuleFallback() -> some View {
+        self
+            .background(.ultraThinMaterial, in: Capsule())
+            .overlay(Capsule().strokeBorder(.white.opacity(0.75), lineWidth: 1))
+            .shadow(color: Theme.ink.opacity(0.06), radius: 12, y: 6)
     }
 }
 

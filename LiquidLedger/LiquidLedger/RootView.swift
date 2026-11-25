@@ -76,6 +76,7 @@ struct RootView: View {
 
     @ViewBuilder
     private var tabRow: some View {
+        #if swift(>=6.2)
         if #available(iOS 26.0, *) {
             GlassEffectContainer(spacing: 14) {
                 tabCapsule
@@ -83,6 +84,9 @@ struct RootView: View {
         } else {
             tabCapsule
         }
+        #else
+        tabCapsule
+        #endif
     }
 
     private var tabCapsule: some View {
@@ -126,6 +130,7 @@ struct RootView: View {
 
     @ViewBuilder
     private var glider: some View {
+        #if swift(>=6.2)
         if #available(iOS 26.0, *) {
             Capsule()
                 .fill(.white.opacity(0.001))
@@ -134,11 +139,18 @@ struct RootView: View {
                     in: Capsule()
                 )
         } else {
-            Capsule()
-                .fill(.white.opacity(0.75))
-                .overlay(Capsule().strokeBorder(.white.opacity(0.9), lineWidth: 1))
-                .shadow(color: Theme.ink.opacity(0.08), radius: 8, y: 4)
+            fallbackGlider
         }
+        #else
+        fallbackGlider
+        #endif
+    }
+
+    private var fallbackGlider: some View {
+        Capsule()
+            .fill(.white.opacity(0.75))
+            .overlay(Capsule().strokeBorder(.white.opacity(0.9), lineWidth: 1))
+            .shadow(color: Theme.ink.opacity(0.08), radius: 8, y: 4)
     }
 }
 
